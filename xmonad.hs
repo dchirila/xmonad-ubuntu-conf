@@ -24,6 +24,7 @@ import XMonad.Layout.NoBorders
 import XMonad.Layout.Circle
 import XMonad.Layout.PerWorkspace (onWorkspace)
 import XMonad.Layout.Fullscreen
+import XMonad.Layout.Spacing  -- for adding space around windows
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
 import XMonad.Hooks.DynamicLog
@@ -42,8 +43,8 @@ import Data.Ratio ((%))
 
 myModMask            = mod4Mask       -- changes the mod key to "super"
 myFocusedBorderColor = "#ff0000"      -- color of focused border
-myNormalBorderColor  = "#cccccc"      -- color of inactive border
-myBorderWidth        = 1              -- width of border around windows
+myNormalBorderColor  = "#00ff00"      -- color of inactive border
+myBorderWidth        = 4              -- width of border around windows
 myTerminal           = "terminator"   -- which terminal software to use
 myIMRosterTitle      = "Buddy List"   -- title of roster on IM workspace
                                       -- use "Buddy List" for Pidgin, but
@@ -89,13 +90,12 @@ myUrgentWSRight = "}"
 
 myWorkspaces =
   [
-    "7:Chat",  "8:Dbg", "9:Pix",
-    "4:Docs",  "5:Dev", "6:Web",
-    "1:Term",  "2:Hub", "3:Mail",
-    "0:VM",    "Extr1", "Extr2"
+    "7:Media",  "8:Mail", "9:Pix",
+    "4:Docs",  "5:Docs2", "6:Git",
+    "1:Write",  "2:DevScratch", "3:WWW"
   ]
 
-startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch?
+startupWorkspace = "1:Write"  -- which workspace do you want to be on after launch?
 
 {-
   Layout configuration. In this section we identify which xmonad
@@ -116,7 +116,7 @@ startupWorkspace = "5:Dev"  -- which workspace do you want to be on after launch
 -- appear if there is more than one visible window.
 -- "avoidStruts" modifier makes it so that the layout provides
 -- space for the status bar at the top of the screen.
-defaultLayouts = smartBorders(avoidStruts(
+defaultLayouts = smartBorders(spacing 4 $ avoidStruts(
   -- ResizableTall layout has a large master window on the left,
   -- and remaining windows tile on the right. By default each area
   -- takes up half the screen, but you can resize using "super-h" and
@@ -152,14 +152,6 @@ defaultLayouts = smartBorders(avoidStruts(
 -- Here we define some layouts which will be assigned to specific
 -- workspaces based on the functionality of that workspace.
 
--- The chat layout uses the "IM" layout. We have a roster which takes
--- up 1/8 of the screen vertically, and the remaining space contains
--- chat windows which are tiled using the grid layout. The roster is
--- identified using the myIMRosterTitle variable, and by default is
--- configured for Pidgin, so if you're using something else you
--- will want to modify that variable.
-chatLayout = avoidStruts(withIM (1%7) (Title myIMRosterTitle) Grid)
-
 -- The GIMP layout uses the ThreeColMid layout. The traditional GIMP
 -- floating panels approach is a bit of a challenge to handle with xmonad;
 -- I find the best solution is to make the image you are working on the
@@ -170,9 +162,7 @@ gimpLayout = smartBorders(avoidStruts(ThreeColMid 1 (3/100) (3/4)))
 
 -- Here we combine our default layouts with our specific, workspace-locked
 -- layouts.
-myLayouts =
-  onWorkspace "7:Chat" chatLayout
-  $ onWorkspace "9:Pix" gimpLayout
+myLayouts = onWorkspace "9:Pix" gimpLayout
   $ defaultLayouts
 
 
@@ -261,13 +251,12 @@ myManagementHooks :: [ManageHook]
 myManagementHooks = [
   resource =? "synapse" --> doIgnore
   , resource =? "stalonetray" --> doIgnore
+  , className =? "Yakuake" --> doFloat
   , className =? "rdesktop" --> doFloat
-  , (className =? "Komodo IDE") --> doF (W.shift "5:Dev")
-  , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
-  , (className =? "Komodo IDE" <&&> resource =? "Toplevel") --> doFloat
-  , (className =? "Empathy") --> doF (W.shift "7:Chat")
-  , (className =? "Pidgin") --> doF (W.shift "7:Chat")
+  -- , (className =? "Komodo IDE") --> doF (W.shift "1:Dev")
+  -- , (className =? "Komodo IDE" <&&> resource =? "Komodo_find2") --> doFloat
+  -- , (className =? "Komodo IDE" <&&> resource =? "Komodo_gotofile") --> doFloat
+  -- , (className =? "Komodo IDE" <&&> resource =? "Toplevel") --> doFloat
   , (className =? "Gimp-2.8") --> doF (W.shift "9:Pix")
   ]
 
